@@ -7,7 +7,10 @@ const uri = process.env.MONGODB_URI;
 
 module.exports = {
   connectToDb: (callback) => {
-    MongoClient.connect(uri)
+    MongoClient.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
       .then((client) => {
         dbConnection = client.db();
         return callback();
