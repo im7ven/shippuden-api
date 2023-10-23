@@ -1,30 +1,39 @@
 const express = require("express");
 const cors = require("cors");
-const { connectToDb, getDb } = require("./db");
+const mongoose = require("mongoose");
+require("dotenv").config();
+const Character = require("./models/Character"); // Import the Character model
 
-// init app & middleware
 const app = express();
 app.use(cors());
 const port = process.env.PORT || 3000;
 
-// Db connection
-let db;
-
-connectToDb((err) => {
-  if (!err) {
-    app.listen(port, () => {
-      console.log(`App listening on port ${port}`);
-    });
-    db = getDb();
-  } else {
-    console.error("Failed to connect to the database:", err);
-    process.exit(1); // Exit the process if database connection fails
-  }
+// Establish MongoDB connection using Mongoose
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
+const dbConnection = mongoose.connection;
+
+dbConnection.on(
+  "error",
+  console.error.bind(console, "MongoDB connection error:")
+);
+dbConnection.once("open", () => {
+  console.log("Connected to MongoDB");
+  app.listen(port, () => {
+    console.log(`App listening on port ${port}`);
+  });
+});
+
+// Middleware to parse JSON requests
+app.use(express.json());
+
+// API endpoint to get characters
 app.get("/characters", async (req, res) => {
   try {
-    const characters = await db.collection("characters").find().toArray();
+    const characters = await Character.find(); // Use the Mongoose model to query the characters
     res
       .status(200)
       .json({ status: "success", amount: characters.length, data: characters });
