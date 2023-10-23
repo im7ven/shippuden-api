@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 require("dotenv").config();
-const Character = require("./models/Character"); // Import the Character model
+const Character = require("./models/character"); // Import the Character model
 
 const app = express();
 app.use(cors());
